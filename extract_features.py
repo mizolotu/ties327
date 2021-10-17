@@ -259,9 +259,11 @@ class Flow():
         ])
 
 def extract_features(pkt_q, subnet, ports, step, thr):
+
     flow_ids = []
     flow_objects = []
     tstart = time()
+
     while True:
 
         if not pkt_q.empty():
@@ -316,15 +318,23 @@ def extract_features(pkt_q, subnet, ports, step, thr):
 
 if __name__ == '__main__':
 
-    step = 3
+    # params
+
     subnet = '192.168.10.'
     ports = [80, 443]
-    thr = 30
+    step = 5
+    thr = 5
+
+    # queue
 
     pkt_q = Queue()
 
+    # feature extraction thread
+
     ef_thread = Thread(target=extract_features, args=(pkt_q, subnet, ports, step, thr), daemon=True)
     ef_thread.start()
+
+    # reading stdin
 
     for line in sys.stdin:
         try:
@@ -337,7 +347,5 @@ if __name__ == '__main__':
             size = float(spl[5])
             pkt_q.put([timestamp, src, sport, dst, dport, size])
 
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(e, fname, exc_tb.tb_lineno)
+        except:
+            pass
