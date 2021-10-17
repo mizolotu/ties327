@@ -335,9 +335,8 @@ if __name__ == '__main__':
     ef_thread = Thread(target=extract_features, args=(pkt_q, subnet, ports, step, thr), daemon=True)
     ef_thread.start()
 
-    while True:
+    for line in iter(sys.stdin.readline, b''):
         try:
-            line = sys.stdin.readline()
             spl = line.split(',')
             pkt_q.put([float(spl[0]), spl[1], int(spl[2]), spl[3], int(spl[4]), float(spl[5])])
         except:
