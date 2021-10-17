@@ -474,7 +474,7 @@ def extract_features(pkt_q, subnet, ports, step, thr):
 
         tnow = time()
         if tnow > (tstart + step):
-            
+
             # remove old flows
 
             if step <= thr:
