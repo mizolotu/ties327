@@ -1,7 +1,8 @@
 import socket
-
 from socket import AF_INET, AF_INET6, inet_ntop
 from struct import unpack
+
+from datetime import datetime
 
 class sFlowRecordBase:
     def __init__(self, datagram):
@@ -70,34 +71,6 @@ class sFlowRawPacketHeader:
                 Payload Removed: {self.payload_removed}
                 Source MAC: {self.source_mac}
                 Destination MAC: {self.destination_mac}
-        """
-
-    def __len__(self):
-        return 1
-
-
-class sFlowSampledIpv4:
-
-    def __init__(self, datagram):
-        self.length = unpack(">i", datagram[0:4])[0]
-        self.protocol = unpack(">i", datagram[4:8])[0]
-        self.source_ip = inet_ntop(AF_INET, datagram[8:12])
-        self.destination_ip = inet_ntop(AF_INET, datagram[12:16])
-        self.source_port = unpack(">i", datagram[16:20])[0]
-        self.destination_port = unpack(">i", datagram[20:24])[0]
-        self.tcp_flags = unpack(">i", datagram[24:28])[0]
-        self.tos = unpack(">i", datagram[28:32])[0]
-
-    def __repr__(self):
-        return f"""
-            IPv4 Sample:
-                Protocol: {self.protocol}
-                Source IP: {self.source_ip}
-                Destination IP: {self.destination_ip}
-                Source Port: {self.source_port}
-                Destination Port: {self.destination_port}
-                TCP Flags: {self.tcp_flags}
-                Type of Service: {self.tos}
         """
 
     def __len__(self):
@@ -238,6 +211,6 @@ if __name__ == '__main__':
                 if sflow_record.format == 1:  # raw packet header
                     record = sflow_record.record
                     if record.header_protocol == 1:  # ethernet
-                        print(record.ip_source, record.ip_destination, record.source_port, record.destination_port)
+                        print(f'{datetime.now},{record.ip_source},{record.source_port},{record.ip_destination},{record.destination_port},{record.ip_total_length}')
         except:
             pass
