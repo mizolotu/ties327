@@ -266,6 +266,8 @@ def extract_features(pkt_q, subnet, ports, step, thr):
 
     while True:
 
+        print('get', pkt_q.qsize())
+
         if not pkt_q.empty():
             timestamp, dst, dport, src, sport, size = pkt_q.get()
             print(timestamp, dst, dport, src, sport, size)
@@ -349,6 +351,7 @@ if __name__ == '__main__':
             dport = int(spl[4])
             size = float(spl[5])
             pkt_q.put([timestamp, src, sport, dst, dport, size])
+            print('put', pkt_q.qsize())
 
         except Exception as e:
             print(e)
