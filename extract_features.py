@@ -350,5 +350,5 @@ if __name__ == '__main__':
             size = float(spl[5])
             pkt_q.put([timestamp, src, sport, dst, dport, size])
 
-        except:
-            pass
+        except Exception as e:
+            print(e)
