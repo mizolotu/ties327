@@ -1668,11 +1668,11 @@ if __name__ == '__main__':
         print('here')
         try:
             sflow_data = sFlow(data)
+            print('there')
+
+            for i in range(sflow_data.number_sample):
+                for j in range(sflow_data.samples[i].record_count):
+                    print(i, j)
+                    pprint.pprint(vars(sflow_data.samples[i].records[j].record))
         except Exception as e:
             print(e)
-        print('there')
-
-        for i in range(sflow_data.number_sample):
-            for j in range(sflow_data.samples[i].record_count):
-                print(i, j)
-                pprint.pprint(vars(sflow_data.samples[i].records[j].record))
