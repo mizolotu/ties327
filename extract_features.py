@@ -56,7 +56,6 @@ class Flow():
         self.fw_byt_sub_avg = 0
         self.bw_pkt_sub_avg = 0
         self.bw_byt_sub_avg = 0
-        self.bw_win_byt = 0
         self.atv_avg = 0
         self.atv_std = 0
         self.atv_max = 0
@@ -79,7 +78,6 @@ class Flow():
             self.fw_pkt_l_avg = size
             self.subfl_fw_pk = 1
             self.subfl_fw_byt = size
-            self.fw_win_byt = size
         else:
             self.directions = [-1]
             self.tot_bw_pk = 1
@@ -89,7 +87,6 @@ class Flow():
             self.bw_pkt_l_avg = size
             self.subfl_bw_pk = 1
             self.subfl_bw_byt = size
-            self.bw_win_byt = size
 
         self.pkt_len_min = size
         self.pkt_len_max = size
@@ -202,9 +199,6 @@ class Flow():
         self.subfl_bw_pk = len(bw_pkts) / (len(bw_pkts) - len(bw_bulk)) if len(bw_pkts) - len(bw_bulk) > 0 else 0
         self.subfl_bw_byt = np.sum(bw_pkts[:, 1]) / (len(bw_pkts) - len(bw_bulk)) if len(bw_pkts) - len(bw_bulk) > 0 else 0
 
-        self.fw_win_byt = fw_pkts[0, 3] if len(fw_pkts) > 0 else 0
-        self.bw_win_byt = bw_pkts[0, 3] if len(bw_pkts) > 0 else 0
-
         self.fw_seg_min = np.min(fw_pkts[:, 2]) if len(fw_pkts) > 0 else 0
 
         return np.array([
@@ -253,16 +247,14 @@ class Flow():
             self.fw_byt_sub_avg,  # 42
             self.bw_pkt_sub_avg,  # 43
             self.bw_byt_sub_avg,  # 44
-            self.fw_win_byt,  # 45
-            self.bw_win_byt,  # 46
-            self.atv_avg,  # 47
-            self.atv_std,  # 48
-            self.atv_max,  # 49
-            self.atv_min,  # 50
-            self.idl_avg,  # 51
-            self.idl_std,  # 52
-            self.idl_max,  # 53
-            self.idl_min  # 54
+            self.atv_avg,  # 45
+            self.atv_std,  # 46
+            self.atv_max,  # 47
+            self.atv_min,  # 48
+            self.idl_avg,  # 49
+            self.idl_std,  # 50
+            self.idl_max,  # 51
+            self.idl_min  # 52
         ])
 
 if __name__ == '__main__':
