@@ -275,8 +275,6 @@ def extract_features(pkt_q, subnet, ports, step, thr):
         tnow = time()
         if tnow > (tstart + step):
 
-            print(len(flow_ids))
-
             # remove old flows
 
             tmp_ids = []
@@ -290,10 +288,13 @@ def extract_features(pkt_q, subnet, ports, step, thr):
 
             # calculate_features
 
-            flow_features = []
             for i, o in zip(flow_ids, flow_objects):
                 o_features = o.get_features()
-                flow_features.append(o_features)
+                id_str = ''.join([str(item) for item in i])
+                features_str = ''.join([str(item) for item in o_features])
+                print(f'{id_str},{features_str}')
+
+            # update time
 
             tstart = time()
 
