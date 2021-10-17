@@ -199,8 +199,6 @@ class Flow():
         self.subfl_bw_pk = len(bw_pkts) / (len(bw_pkts) - len(bw_bulk)) if len(bw_pkts) - len(bw_bulk) > 0 else 0
         self.subfl_bw_byt = np.sum(bw_pkts[:, 1]) / (len(bw_pkts) - len(bw_bulk)) if len(bw_pkts) - len(bw_bulk) > 0 else 0
 
-        self.fw_seg_min = np.min(fw_pkts[:, 2]) if len(fw_pkts) > 0 else 0
-
         return np.array([
             self.fl_dur,  # 0
             self.tot_fw_pk,  # 1
