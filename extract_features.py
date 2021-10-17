@@ -290,8 +290,8 @@ def extract_features(pkt_q, subnet, ports, step, thr):
 
             for i, o in zip(flow_ids, flow_objects):
                 o_features = o.get_features()
-                id_str = ''.join([str(item) for item in i])
-                features_str = ''.join([str(item) for item in o_features])
+                id_str = ','.join([str(item) for item in i])
+                features_str = ','.join([str(item) for item in o_features])
                 print(f'{id_str},{features_str}')
 
             # update time
