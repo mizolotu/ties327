@@ -1664,12 +1664,8 @@ if __name__ == '__main__':
         data, addr = sock.recvfrom(
             3000
         )  # 1386 bytes is the largest possible sFlow packet, by spec 3000 seems to be the number by practice
-        print(data, addr)
-        print('here')
         try:
             sflow_data = sFlow(data)
-            print('there')
-
             for i in range(sflow_data.number_sample):
                 for j in range(sflow_data.samples[i].record_count):
                     print(i, j)
