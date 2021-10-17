@@ -339,7 +339,7 @@ if __name__ == '__main__':
 
     # reading stdin
 
-    for line in sys.stdin:
+    for line in (sys.stdin.readline, b''):
         try:
             spl = line.strip().split(',')
             timestamp = float(spl[0])
