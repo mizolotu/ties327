@@ -211,6 +211,6 @@ if __name__ == '__main__':
                 if sflow_record.format == 1:  # raw packet header
                     record = sflow_record.record
                     if record.header_protocol == 1:  # ethernet
-                        print(f'{datetime.now},{record.ip_source},{record.source_port},{record.ip_destination},{record.destination_port},{record.ip_total_length}')
+                        print(f'{datetime.now()},{record.ip_source},{record.source_port},{record.ip_destination},{record.destination_port},{record.ip_total_length}')
         except:
             pass
