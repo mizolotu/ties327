@@ -1,7 +1,7 @@
 import socket
+
 from socket import AF_INET, AF_INET6, inet_ntop
 from struct import unpack
-
 from datetime import datetime
 
 class sFlowRecordBase:
