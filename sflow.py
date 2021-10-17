@@ -520,7 +520,7 @@ if __name__ == '__main__':
     subnet = '192.168.10.'
     ports = [80, 443]
     step = 3
-    thr = 10
+    thr = 3
 
     # sflow socket
 
