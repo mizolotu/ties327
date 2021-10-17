@@ -292,7 +292,7 @@ if __name__ == '__main__':
             sflow_data = sFlow(data)
             for i in range(sflow_data.number_sample):
                 record = sflow_data.samples[i].records[1]
-                if record.format == 1:
+                if record.format == 3:
                     print(record.record)
         except:
             pass
