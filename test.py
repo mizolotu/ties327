@@ -7,4 +7,3 @@ while True:
     sys.stdout.write(str(datetime.datetime.now().strftime("%H:%M:%S"))+'\t')
     sys.stdout.write(line)
     sys.stdout.flush()
-    time.sleep(1)

@@ -1,4 +1,4 @@
-import socket
+import socket, sys
 import numpy as np
 
 from socket import AF_INET, AF_INET6, inet_ntop
@@ -546,7 +546,10 @@ if __name__ == '__main__':
                 if sflow_record.format == 1:
                     record = sflow_record.record
                     if record.header_protocol == 1:
-                        print(f'{time()},{record.ip_source},{record.source_port},{record.ip_destination},{record.destination_port},{record.ip_total_length}')
+                        line = f'{time()},{record.ip_source},{record.source_port},{record.ip_destination},{record.destination_port},{record.ip_total_length}'
+                        sys.stdout.write(line)
+                        sys.stdout.flush()
+                        #print(f'{time()},{record.ip_source},{record.source_port},{record.ip_destination},{record.destination_port},{record.ip_total_length}')
                         #pkt_q.put([time(), record.ip_source, record.source_port, record.ip_destination, record.destination_port, record.ip_total_length])
 
         except:
