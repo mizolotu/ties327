@@ -1,4 +1,3 @@
-import pprint
 import socket
 
 from socket import AF_INET, AF_INET6, inet_ntop
@@ -55,6 +54,10 @@ class sFlowRawPacketHeader:
                 self.ip_source = inet_ntop(AF_INET, self.header[26 + offset : 30 + offset])
                 self.ip_destination = inet_ntop(AF_INET, self.header[30 + offset : 34 + offset])
 
+                self.source_port = unpack(">i", datagram[34 + offset : 38 + offset])[0]
+                self.destination_port = unpack(">i", datagram[38 + offset : 42 + offset])[0]
+                self.tcp_flags = unpack(">i", datagram[42 + offset : 46 + offset])[0]
+
                 if self.ip_header_legth > 5:
                     self.ip_options = self.header[34 + offset : (35 + offset) + ((self.ip_header_legth - 5) * 4)]
                 self.ip_remaining_header = self.header[34 + offset + ((self.ip_header_legth - 5) * 4) :]
@@ -73,59 +76,8 @@ class sFlowRawPacketHeader:
     def __len__(self):
         return 1
 
-    def decode_ipv4(self):
-
-        decode = {}
-        offset = 0
-
-        if unpack(">H", self.header[12:14])[0] == 37120:  # 802.1ad
-            offset = 8
-            decode["802.1ad"] = True
-            decode["outer_vlan"] = divmod(unpack(">H", self.header[14:16])[0], 4096)[1]
-            decode["inner_vlan"] = divmod(unpack(">H", self.header[18:20])[0], 4096)[1]
-
-        if unpack(">H", self.header[12:14])[0] == 33024:  # 802.1Q
-            offset = 4
-            decode["802.1Q"] = True
-            decode["vlan"] = divmod(unpack(">H", self.header[14:16])[0], 4096)[1]
-
-        if unpack(">H", self.header[12 + offset : 14 + offset])[0] != 2048:
-            return decode
-
-        decode["ttl"] = self.header[22 + offset]
-        decode["protocol"] = self.header[23 + offset]
-        decode["checksum"] = unpack(">H", self.header[24 + offset : 26 + offset])[0]
-        decode["source"] = inet_ntop(AF_INET, self.header[26 + offset : 30 + offset])
-        decode["destination"] = inet_ntop(AF_INET, self.header[30 + offset : 34 + offset])
-        decode["header"] = self.header[34 + offset :]
-
-        return decode
-
-
-class sFlowEthernetFrame:
-    "flowData: enterprise = 0, format = 2"
-
-    def __init__(self, datagram):
-        self.frame_length = unpack(">i", datagram[0:4])[0]
-        self.source_mac = datagram[4:10].hex("-")
-        self.destination_mac = datagram[12:18].hex("-")
-        self.type = unpack(">i", datagram[20:24])[0]
-
-    def __repr__(self):
-        return f"""
-            Ethernet Frame:
-                Frame Length: {self.frame_length}
-                Source MAC: {self.source_mac}
-                Destination MAC: {self.destination_mac}
-                Frame Type: {self.type}
-        """
-
-    def __len__(self):
-        return 1
-
 
 class sFlowSampledIpv4:
-    "flowData: enterprise = 0, format = 3"
 
     def __init__(self, datagram):
         self.length = unpack(">i", datagram[0:4])[0]
@@ -154,14 +106,11 @@ class sFlowSampledIpv4:
 
 
 s_flow_record_format = {
-    (1, 0, 1): sFlowRawPacketHeader,
-    (1, 0, 2): sFlowEthernetFrame,
-    (1, 0, 3): sFlowSampledIpv4
+    (1, 0, 1): sFlowRawPacketHeader
 }
 
 
 class sFlowRecord:
-    """sFlowRecord class:"""
 
     def __init__(self, header, sample_type, datagram):
         self.header = header
@@ -169,9 +118,6 @@ class sFlowRecord:
         self.enterprise, self.format = divmod(self.header, 4096)
         self.datagram = datagram
         self.record = s_flow_record_format.get((sample_type, self.enterprise, self.format), sFlowRecordBase)(datagram)
-
-
-# sFlow Sample class.
 
 
 class sFlowSample:
@@ -285,14 +231,14 @@ if __name__ == '__main__':
 
     while True:
 
-        data, addr = sock.recvfrom(
-            3000
-        )  # 1386 bytes is the largest possible sFlow packet, by spec 3000 seems to be the number by practice
+        data, addr = sock.recvfrom(3000)
         try:
             sflow_data = sFlow(data)
             for i in range(sflow_data.number_sample):
-                record = sflow_data.samples[i].records[1]
-                if record.format == 1 and record.record.header_protocol == 1:
-                    print(record.record.ip_source, record.record.ip_destination, record.record.ip_protocol)
+                sflow_record = sflow_data.samples[i].records[1]
+                if sflow_record.format == 1:  # raw packet header
+                    record = sflow_record.record
+                    if record.header_protocol == 1:  # ethernet
+                        print(record.ip_source, record.ip_destination, record.source_port, record.destination_port, record.tcp_flags)
         except:
             pass
