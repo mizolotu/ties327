@@ -339,7 +339,7 @@ if __name__ == '__main__':
 
     # reading stdin
 
-    for line in (sys.stdin.readline, b''):
+    for line in iter(sys.stdin.readline, b''):
         print(line)
         try:
             spl = line.strip().split(',')
