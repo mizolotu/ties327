@@ -107,6 +107,9 @@ class Flow():
         fw_pkts = np.array([pkt for pkt, d in zip(self.pkts, self.directions) if d > 0])
         bw_pkts = np.array([pkt for pkt, d in zip(self.pkts, self.directions) if d < 0])
 
+        print(fw_pkts)
+        print(bw_pkts)
+
         # forward and backward bulks
 
         if len(fw_pkts) > 1:
