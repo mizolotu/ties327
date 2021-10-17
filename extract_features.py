@@ -297,6 +297,8 @@ if __name__ == '__main__':
 
                 if timestamp > (tstart + step):
 
+                    print(flow_ids)
+
                     # remove old flows
 
                     tmp_ids = []
