@@ -265,7 +265,7 @@ class Flow():
 
 if __name__ == '__main__':
 
-    step = 1
+    step = 3
     ports = [80, 443]
 
     flow_ids = []
@@ -276,7 +276,6 @@ if __name__ == '__main__':
 
     for line in sys.stdin:
         try:
-            spl = line.split(',')
             spl = line.strip().split(',')
             timestamp = float(spl[0])
             src = spl[1]
@@ -312,11 +311,10 @@ if __name__ == '__main__':
 
                     # calculate_features
 
-                    flow_features_t = []
+                    flow_features = []
                     for i, o in zip(flow_ids, flow_objects):
                         o_features = o.get_features()
-                        flow_features_t.append(o_features)
-                    flow_features.extend(flow_features_t)
+                        flow_features.append(o_features)
 
                     # update time
 
@@ -333,7 +331,8 @@ if __name__ == '__main__':
 
             # lists to arrays
 
-            flow_features = np.array(flow_features)
+            for i, f in zip(id, flow_features):
+                print(i, f)
 
 
         except Exception as e:
