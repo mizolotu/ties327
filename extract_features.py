@@ -280,6 +280,7 @@ def extract_features(pkt_q, subnet, ports, step, thr):
 
         tnow = time()
         if tnow > (tstart + step):
+            print(flow_ids)
 
             # remove old flows
 
