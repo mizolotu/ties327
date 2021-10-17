@@ -264,6 +264,7 @@ class Flow():
 if __name__ == '__main__':
 
     step = 3
+    subnet = '192.168.10.'
     ports = [80, 443]
     thr = 30
 
@@ -282,11 +283,12 @@ if __name__ == '__main__':
             dst = spl[3]
             dport = int(spl[4])
             size = float(spl[5])
+            print(timestamp, src, dst, sport, dport, size)
 
-            if sport in ports:
+            if sport in ports and dst.startswith(subnet):
                 id = [dst, dport, src, sport]
                 direction = -1
-            elif dport in ports:
+            elif dport in ports and src.startswith(subnet):
                 id = [src, sport, dst, dport]
                 direction = 1
             else:
