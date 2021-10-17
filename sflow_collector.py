@@ -291,6 +291,6 @@ if __name__ == '__main__':
         try:
             sflow_data = sFlow(data)
             for i in range(sflow_data.number_sample):
-                print(sflow_data.samples[i].records[1].type)
+                print(sflow_data.samples[i].records[1])
         except:
             pass
