@@ -278,6 +278,8 @@ def extract_features(pkt_q, subnet, ports, step, thr):
             id = None
             direction = 0
 
+        print(flow_ids)
+
         tnow = time()
         if tnow > (tstart + step):
 
