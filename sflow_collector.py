@@ -1668,5 +1668,5 @@ if __name__ == '__main__':
             sflow_data = sFlow(data)
             for i in range(sflow_data.number_sample):
                 pprint.pprint(vars(sflow_data.samples[i].records[1].record))
-        except Exception as e:
-            print(e)
+        except:
+            pass
