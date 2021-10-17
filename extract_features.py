@@ -1,6 +1,8 @@
 import sys, os
 import numpy as np
 
+from queue import Queue
+from threading import Thread
 from time import time
 
 class Flow():
@@ -252,6 +254,62 @@ class Flow():
             self.idl_min  # 52
         ])
 
+def extract_features():
+    flow_ids = []
+    flow_objects = []
+    flow_features = []
+    tstart = time()
+    while True:
+
+        try:
+            timestamp, dst, dport, src, sport, size = pkt_q.get()
+            if sport in ports and dst.startswith(subnet):
+                id = [dst, dport, src, sport]
+                direction = -1
+            elif dport in ports and src.startswith(subnet):
+                id = [src, sport, dst, dport]
+                direction = 1
+            else:
+                id = None
+                direction = 0
+        except Exception as e:
+            print(e)
+
+        if time() > (tstart + step):
+
+            print(flow_ids)
+
+            # remove old flows
+
+            tmp_ids = []
+            tmp_objects = []
+            for i, o in zip(flow_ids, flow_objects):
+                if o.last_ts > timestamp - thr:
+                    tmp_ids.append(i)
+                    tmp_objects.append(o)
+            flow_ids = list(tmp_ids)
+            flow_objects = list(tmp_objects)
+
+            # calculate_features
+
+            flow_features = []
+            for i, o in zip(flow_ids, flow_objects):
+                o_features = o.get_features()
+                flow_features.append(o_features)
+
+            tstart = time()
+
+        # add packet
+
+        if id is not None:
+            if id in flow_ids:
+                idx = flow_ids.index(id)
+                flow_objects[idx].append(timestamp, size, direction)
+            else:
+                flow_ids.append(id)
+                flow_objects.append(Flow(timestamp, id, direction, size))
+
+
 if __name__ == '__main__':
 
     step = 3
@@ -259,11 +317,7 @@ if __name__ == '__main__':
     ports = [80, 443]
     thr = 30
 
-    flow_ids = []
-    flow_objects = []
-    flow_features = []
-
-    tstart = time()
+    pkt_q = Queue()
 
     for line in sys.stdin:
         try:
@@ -274,58 +328,7 @@ if __name__ == '__main__':
             dst = spl[3]
             dport = int(spl[4])
             size = float(spl[5])
-
-            if sport in ports and dst.startswith(subnet):
-                id = [dst, dport, src, sport]
-                direction = -1
-            elif dport in ports and src.startswith(subnet):
-                id = [src, sport, dst, dport]
-                direction = 1
-            else:
-                id = None
-                direction = 0
-
-            if id is not None:
-
-                if timestamp > (tstart + step):
-
-                    print(flow_ids)
-
-                    # remove old flows
-
-                    tmp_ids = []
-                    tmp_objects = []
-                    for i, o in zip(flow_ids, flow_objects):
-                        if o.last_ts > timestamp - thr:
-                            tmp_ids.append(i)
-                            tmp_objects.append(o)
-                    flow_ids = list(tmp_ids)
-                    flow_objects = list(tmp_objects)
-
-                    # calculate_features
-
-                    flow_features = []
-                    for i, o in zip(flow_ids, flow_objects):
-                        o_features = o.get_features()
-                        flow_features.append(o_features)
-
-                    # print features
-
-                    #for i, f in zip(flow_ids, flow_features):
-                    #    print(i, f)
-
-                    # update time
-
-                    tstart = time()
-
-                # add packets
-
-                if id in flow_ids:
-                    idx = flow_ids.index(id)
-                    flow_objects[idx].append(timestamp, size, direction)
-                else:
-                    flow_ids.append(id)
-                    flow_objects.append(Flow(timestamp, id, direction, size))
+            pkt_q.put([timestamp, src, sport, dst, dport])
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
