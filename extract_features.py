@@ -11,7 +11,6 @@ class Flow():
 
         self.id = id
         self.pkts = [[ts, size]]
-        self.directions = [1]
 
         # thresholds
 
@@ -72,6 +71,7 @@ class Flow():
         # features
 
         if direction == 1:
+            self.directions = [1]
             self.tot_fw_pk = 1
             self.tot_l_fw_pkt = size
             self.fw_pkt_l_max = size
@@ -81,6 +81,7 @@ class Flow():
             self.subfl_fw_byt = size
             self.fw_win_byt = size
         else:
+            self.directions = [-1]
             self.tot_bw_pk = 1
             self.tot_l_bw_pkt = size
             self.bw_pkt_l_max = size
