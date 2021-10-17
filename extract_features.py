@@ -316,6 +316,11 @@ if __name__ == '__main__':
                         o_features = o.get_features()
                         flow_features.append(o_features)
 
+                    # print features
+
+                    for i, f in zip(flow_ids, flow_features):
+                        print(i, f)
+
                     # update time
 
                     tstart = time()
@@ -328,12 +333,6 @@ if __name__ == '__main__':
                 else:
                     flow_ids.append(id)
                     flow_objects.append(Flow(timestamp, id, direction, size))
-
-            # lists to arrays
-
-            for i, f in zip(id, flow_features):
-                print(i, f)
-
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
