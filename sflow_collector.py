@@ -1666,7 +1666,10 @@ if __name__ == '__main__':
         )  # 1386 bytes is the largest possible sFlow packet, by spec 3000 seems to be the number by practice
         print(data, addr)
         print('here')
-        sflow_data = sFlow(data)
+        try:
+            sflow_data = sFlow(data)
+        except Exception as e:
+            print(e)
         print('there')
 
         for i in range(sflow_data.number_sample):
