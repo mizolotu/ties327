@@ -292,7 +292,7 @@ if __name__ == '__main__':
             sflow_data = sFlow(data)
             for i in range(sflow_data.number_sample):
                 record = sflow_data.samples[i].records[1]
-                if record.format == 3:
-                    print(record.record)
+                if record.format == 1 and record.record.header_protocol == 1:
+                    print(record.record.ip_source, record.record.ip_destination, record.record.ip_protocol)
         except:
             pass
