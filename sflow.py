@@ -534,7 +534,7 @@ if __name__ == '__main__':
     # feature extraction thread
 
     ef_thread = Thread(target=extract_features, args=(pkt_q, subnet, ports, step, thr), daemon=True)
-    ef_thread.start()
+    #ef_thread.start()
 
     while True:
 
@@ -546,7 +546,8 @@ if __name__ == '__main__':
                 if sflow_record.format == 1:
                     record = sflow_record.record
                     if record.header_protocol == 1:
-                        pkt_q.put([time(), record.ip_source, record.source_port, record.ip_destination, record.destination_port, record.ip_total_length])
+                        print(f'{time()},{record.ip_source},{record.source_port},{record.ip_destination},{record.destination_port},{record.ip_total_length}')
+                        #pkt_q.put([time(), record.ip_source, record.source_port, record.ip_destination, record.destination_port, record.ip_total_length])
 
         except:
             pass
