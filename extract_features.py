@@ -254,7 +254,7 @@ class Flow():
             self.idl_min  # 52
         ])
 
-def extract_features():
+def extract_features(subnet, ports, step, thr):
     flow_ids = []
     flow_objects = []
     flow_features = []
@@ -317,8 +317,10 @@ if __name__ == '__main__':
     ports = [80, 443]
     thr = 30
 
-    pkt_q = Queue()
+    ef_thread = Thread(target=extract_features, args=(subnet, ports, step, thr), daemon=True)
+    ef_thread.start()
 
+    pkt_q = Queue()
     for line in sys.stdin:
         try:
             spl = line.strip().split(',')
