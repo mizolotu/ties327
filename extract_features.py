@@ -268,6 +268,7 @@ def extract_features(pkt_q, subnet, ports, step, thr):
 
         if not pkt_q.empty():
             timestamp, dst, dport, src, sport, size = pkt_q.get()
+            print(timestamp, dst, dport, src, sport, size)
             if sport in ports and dst.startswith(subnet):
                 id = [dst, dport, src, sport]
                 direction = -1
