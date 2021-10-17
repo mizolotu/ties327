@@ -1,14 +1,16 @@
 import sys, os
+import numpy as np
+
+from time import time
 
 class Flow():
 
-    def __init__(self, ts, id, features, flags, blk_thr=1.0, idl_thr=5.0):
+    def __init__(self, ts, id, direction, size, blk_thr=1.0, idl_thr=5.0):
 
         # lists
 
         self.id = id
-        self.pkts = [[ts, *features]]
-        self.flags = [flags]
+        self.pkts = [[ts, size]]
         self.directions = [1]
 
         # thresholds
@@ -69,53 +71,42 @@ class Flow():
         self.idl_std = 0
         self.idl_max = 0
         self.idl_min = 0
-        self.flag_counts = [0 for _ in range(5)]
 
         # features
 
-        self.is_tcp = 0
-        self.is_udp = 0
-        if id[4] == 6:
-            self.is_tcp = 1
-        elif id[4] == 17:
-            self.is_udp = 1
-        for i in range(len(self.flag_counts)):
-            self.flag_counts[i] = 1 if flags[i] == 1 else 0
-        self.tot_fw_pk = 1
-        psize = features[0]
-        self.tot_l_fw_pkt = psize
-        self.fw_pkt_l_max = psize
-        self.fw_pkt_l_min = psize
-        self.fw_pkt_l_avg = psize
-        self.fw_hdr_len = psize
-        self.pkt_len_min = psize
-        self.pkt_len_max = psize
-        self.pkt_len_avg = psize
-        self.subfl_fw_pk = 1
-        self.subfl_fw_byt = psize
-        self.fw_win_byt = psize
-        self.fw_act_pkt = 1 if features[2] > 0 else 0
+        if direction == 1:
+            self.tot_fw_pk = 1
+            self.tot_l_fw_pkt = size
+            self.fw_pkt_l_max = size
+            self.fw_pkt_l_min = size
+            self.fw_pkt_l_avg = size
+            self.subfl_fw_pk = 1
+            self.subfl_fw_byt = size
+            self.fw_win_byt = size
+        else:
+            self.tot_bw_pk = 1
+            self.tot_l_bw_pkt = size
+            self.bw_pkt_l_max = size
+            self.bw_pkt_l_min = size
+            self.bw_pkt_l_avg = size
+            self.subfl_bw_pk = 1
+            self.subfl_bw_byt = size
+            self.bw_win_byt = size
 
-        # is active
+        self.pkt_len_min = size
+        self.pkt_len_max = size
+        self.pkt_len_avg = size
 
-        self.is_active = True
-
-    def append(self, ts, features, flags, direction):
-        self.pkts.append([ts, *features])
-        self.flags.append(flags)
+    def append(self, ts, size, direction):
+        self.pkts.append([ts, size])
         self.directions.append(direction)
-        if flags[0] == 1 or flags[2] == 1:
-            self.is_active = False
 
     def get_features(self):
 
         # recalculate features
 
-        npkts = len(self.pkts)
         fw_pkts = np.array([pkt for pkt, d in zip(self.pkts, self.directions) if d > 0])
         bw_pkts = np.array([pkt for pkt, d in zip(self.pkts, self.directions) if d < 0])
-        fw_flags = np.array([f for f, d in zip(self.flags, self.directions) if d > 0])
-        bw_flags = np.array([f for f, d in zip(self.flags, self.directions) if d < 0])
 
         # forward and backward bulks
 
@@ -148,10 +139,8 @@ class Flow():
         bw_bulk = np.array(bw_bulk)
 
         pkts = np.array(self.pkts)
-        flags = np.array(self.flags)
-        if npkts > 1:
-            iat = pkts[1:, 0] - pkts[:-1, 0]
 
+        iat = pkts[1:, 0] - pkts[:-1, 0]
         self.fl_dur = pkts[-1, 0] - pkts[0, 0]
         self.tot_fw_pk = len(fw_pkts)
         self.tot_bw_pk = len(bw_pkts)
@@ -180,8 +169,6 @@ class Flow():
         self.bw_iat_std = np.std(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
         self.bw_iat_max = np.max(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
         self.bw_iat_min = np.min(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
-        self.fw_psh_flag = np.sum(fw_flags[:, 3]) if len(fw_flags) > 0 else 0
-        self.bw_psh_flag = np.sum(bw_flags[:, 3]) if len(bw_flags) > 0 else 0
 
         if len(fw_pkts) > 0:
             fw_dur = fw_pkts[-1, 0] - fw_pkts[0, 0]
@@ -198,12 +185,6 @@ class Flow():
         self.pkt_len_max = np.max(pkts[:, 1])
         self.pkt_len_avg = np.mean(pkts[:, 1])
         self.pkt_len_std = np.std(pkts[:, 1])
-
-        self.fin_cnt = np.sum(flags[:, 0])
-        self.syn_cnt = np.sum(flags[:, 1])
-        self.rst_cnt = np.sum(flags[:, 2])
-        self.psh_cnt = np.sum(flags[:, 3])
-        self.ack_cnt = np.sum(flags[:, 4])
 
         self.down_up_ratio = len(bw_pkts) / len(fw_pkts) if len(fw_pkts) > 0 else 0
 
@@ -222,83 +203,80 @@ class Flow():
         self.fw_win_byt = fw_pkts[0, 3] if len(fw_pkts) > 0 else 0
         self.bw_win_byt = bw_pkts[0, 3] if len(bw_pkts) > 0 else 0
 
-        self.fw_act_pkt = len([pkt for pkt in fw_pkts if self.is_tcp == 1 and pkt[1] > pkt[2]])
         self.fw_seg_min = np.min(fw_pkts[:, 2]) if len(fw_pkts) > 0 else 0
 
         return np.array([
-            self.is_tcp,  # 0
-            self.is_udp,  # 1
-            self.fl_dur,  # 2
-            self.tot_fw_pk,  # 3
-            self.tot_bw_pk,  # 4
-            self.tot_l_fw_pkt,  # 5
-            self.fw_pkt_l_max,  # 6
-            self.fw_pkt_l_min,  # 7
-            self.fw_pkt_l_avg,  # 8
-            self.fw_pkt_l_std,  # 9
-            self.bw_pkt_l_max,  # 10
-            self.bw_pkt_l_min,  # 11
-            self.bw_pkt_l_avg,  # 12
-            self.bw_pkt_l_std,  # 13
-            self.fl_byt_s,  # 14
-            self.fl_pkt_s,  # 15
-            self.fl_iat_avg,  # 16
-            self.fl_iat_std,  # 17
-            self.fl_iat_max,  # 18
-            self.fl_iat_min,  # 19
-            self.fw_iat_tot,  # 20
-            self.fw_iat_avg,  # 21
-            self.fw_iat_std,  # 22
-            self.fw_iat_max,  # 23
-            self.fw_iat_min,  # 24
-            self.bw_iat_tot,  # 25
-            self.bw_iat_avg,  # 26
-            self.bw_iat_std,  # 27
-            self.bw_iat_max,  # 28
-            self.bw_iat_min,  # 29
-            self.fw_psh_flag,  # 30
-            self.bw_psh_flag,  # 31
-            self.fw_pkt_s,  # 32
-            self.bw_pkt_s,  # 33
-            self.pkt_len_min,  # 34
-            self.pkt_len_max,  # 35
-            self.pkt_len_avg,  # 36
-            self.pkt_len_std,  # 37
-            *self.flag_counts, # 38, 39, 40, 41, 42
-            self.down_up_ratio,  # 43
-            self.fw_byt_blk_avg,  # 44
-            self.fw_pkt_blk_avg,  # 45
-            self.fw_blk_rate_avg,  # 46
-            self.bw_byt_blk_avg,  # 47
-            self.bw_pkt_blk_avg,  # 48
-            self.bw_blk_rate_avg,  # 49
-            self.fw_pkt_sub_avg,  # 50
-            self.fw_byt_sub_avg,  # 51
-            self.bw_pkt_sub_avg,  # 52
-            self.bw_byt_sub_avg,  # 53
-            self.fw_win_byt,  # 54
-            self.bw_win_byt,  # 55
-            self.fw_act_pkt,  # 56
-            self.atv_avg,  # 57
-            self.atv_std,  # 58
-            self.atv_max,  # 59
-            self.atv_min,  # 60
-            self.idl_avg,  # 61
-            self.idl_std,  # 62
-            self.idl_max,  # 63
-            self.idl_min  # 64
+            self.fl_dur,  # 0
+            self.tot_fw_pk,  # 1
+            self.tot_bw_pk,  # 2
+            self.tot_l_fw_pkt,  # 3
+            self.fw_pkt_l_max,  # 4
+            self.fw_pkt_l_min,  # 5
+            self.fw_pkt_l_avg,  # 6
+            self.fw_pkt_l_std,  # 7
+            self.bw_pkt_l_max,  # 8
+            self.bw_pkt_l_min,  # 9
+            self.bw_pkt_l_avg,  # 10
+            self.bw_pkt_l_std,  # 11
+            self.fl_byt_s,  # 12
+            self.fl_pkt_s,  # 13
+            self.fl_iat_avg,  # 14
+            self.fl_iat_std,  # 15
+            self.fl_iat_max,  # 16
+            self.fl_iat_min,  # 17
+            self.fw_iat_tot,  # 18
+            self.fw_iat_avg,  # 19
+            self.fw_iat_std,  # 20
+            self.fw_iat_max,  # 21
+            self.fw_iat_min,  # 22
+            self.bw_iat_tot,  # 23
+            self.bw_iat_avg,  # 24
+            self.bw_iat_std,  # 25
+            self.bw_iat_max,  # 26
+            self.bw_iat_min,  # 27
+            self.fw_pkt_s,  # 28
+            self.bw_pkt_s,  # 29
+            self.pkt_len_min,  # 30
+            self.pkt_len_max,  # 31
+            self.pkt_len_avg,  # 32
+            self.pkt_len_std,  # 33
+            self.down_up_ratio,  # 34
+            self.fw_byt_blk_avg,  # 35
+            self.fw_pkt_blk_avg,  # 36
+            self.fw_blk_rate_avg,  # 37
+            self.bw_byt_blk_avg,  # 38
+            self.bw_pkt_blk_avg,  # 39
+            self.bw_blk_rate_avg,  # 40
+            self.fw_pkt_sub_avg,  # 41
+            self.fw_byt_sub_avg,  # 42
+            self.bw_pkt_sub_avg,  # 43
+            self.bw_byt_sub_avg,  # 44
+            self.fw_win_byt,  # 45
+            self.bw_win_byt,  # 46
+            self.atv_avg,  # 47
+            self.atv_std,  # 48
+            self.atv_max,  # 49
+            self.atv_min,  # 50
+            self.idl_avg,  # 51
+            self.idl_std,  # 52
+            self.idl_max,  # 53
+            self.idl_min  # 54
         ])
 
 if __name__ == '__main__':
 
+    step = 1
     ports = [80, 443]
 
     flow_ids = []
     flow_objects = []
     flow_features = []
 
+    tstart = time()
+
     for line in sys.stdin:
         try:
+            spl = line.split(',')
             spl = line.strip().split(',')
             timestamp = float(spl[0])
             src = spl[1]
@@ -306,7 +284,57 @@ if __name__ == '__main__':
             dst = spl[3]
             dport = int(spl[4])
             size = float(spl[5])
-            print(timestamp, src, sport, dst, dport, size)
+
+            if sport in ports:
+                id = [dst, dport, src, sport]
+                direction = -1
+            elif dport in ports:
+                id = [src, sport, dst, dport]
+                direction = 1
+            else:
+                id = None
+                direction = 0
+
+            if id is not None:
+
+                if timestamp > (tstart + step):
+
+                    # remove old flows
+
+                    tmp_ids = []
+                    tmp_objects = []
+                    for i, o in zip(flow_ids, flow_objects):
+                        if o.is_active:
+                            tmp_ids.append(i)
+                            tmp_objects.append(o)
+                    flow_ids = list(tmp_ids)
+                    flow_objects = list(tmp_objects)
+
+                    # calculate_features
+
+                    flow_features_t = []
+                    for i, o in zip(flow_ids, flow_objects):
+                        o_features = o.get_features()
+                        flow_features_t.append(o_features)
+                    flow_features.extend(flow_features_t)
+
+                    # update time
+
+                    tstart = time()
+
+                # add packets
+
+                if id in flow_ids:
+                    idx = flow_ids.index(id)
+                    flow_objects[idx].append(timestamp, size, direction)
+                else:
+                    flow_ids.append(id)
+                    flow_objects.append(Flow(timestamp, id, size))
+
+            # lists to arrays
+
+            flow_features = np.array(flow_features)
+
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
