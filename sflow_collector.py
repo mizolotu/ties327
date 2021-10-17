@@ -1667,8 +1667,6 @@ if __name__ == '__main__':
         try:
             sflow_data = sFlow(data)
             for i in range(sflow_data.number_sample):
-                for j in range(sflow_data.samples[i].record_count):
-                    print(i, j)
-                    pprint.pprint(vars(sflow_data.samples[i].records[j].record))
+                pprint.pprint(vars(sflow_data.samples[i].records[1].record))
         except Exception as e:
             print(e)
