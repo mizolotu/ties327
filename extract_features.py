@@ -329,7 +329,7 @@ if __name__ == '__main__':
             dst = spl[3]
             dport = int(spl[4])
             size = float(spl[5])
-            pkt_q.put([timestamp, src, sport, dst, dport])
+            pkt_q.put([timestamp, src, sport, dst, dport, size])
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
