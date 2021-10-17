@@ -299,9 +299,14 @@ if __name__ == '__main__':
 
     for line in sys.stdin:
         try:
-            spl = line.split(',')
-            print(spl)
-
+            spl = line.strip().split(',')
+            timestamp = float(spl[0])
+            src = spl[1]
+            sport = int(spl[2])
+            dst = spl[3]
+            dport = int(spl[4])
+            size = float(spl[5])
+            print(timestamp, src, sport, dst, dport, size)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
