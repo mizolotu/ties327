@@ -43,11 +43,6 @@ class Flow():
         self.bw_iat_std = 0
         self.bw_iat_max = 0
         self.bw_iat_min = 0
-        self.fw_psh_flag = 0
-        self.bw_psh_flag = 0
-        self.fw_urg_flag = 0
-        self.bw_urg_flag = 0
-        self.bw_hdr_len = 0
         self.fw_pkt_s = 0
         self.bw_pkt_s = 0
         self.pkt_len_std = 0
@@ -71,6 +66,8 @@ class Flow():
         self.idl_std = 0
         self.idl_max = 0
         self.idl_min = 0
+
+        self.last_ts = ts
 
         # features
 
@@ -100,6 +97,7 @@ class Flow():
     def append(self, ts, size, direction):
         self.pkts.append([ts, size])
         self.directions.append(direction)
+        self.last_ts = ts
 
     def get_features(self):
 
@@ -267,6 +265,7 @@ if __name__ == '__main__':
 
     step = 3
     ports = [80, 443]
+    thr = 30
 
     flow_ids = []
     flow_objects = []
@@ -303,7 +302,7 @@ if __name__ == '__main__':
                     tmp_ids = []
                     tmp_objects = []
                     for i, o in zip(flow_ids, flow_objects):
-                        if o.is_active:
+                        if o.last_ts > timestamp - thr:
                             tmp_ids.append(i)
                             tmp_objects.append(o)
                     flow_ids = list(tmp_ids)
