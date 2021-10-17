@@ -68,6 +68,7 @@ class Flow():
         self.idl_min = 0
 
         self.last_ts = ts
+        self.newpkts = True
 
         # features
 
@@ -98,105 +99,110 @@ class Flow():
         self.pkts.append([ts, size])
         self.directions.append(direction)
         self.last_ts = ts
+        self.newpkts = True
 
     def get_features(self):
 
-        # recalculate features
+        if self.newpkts:
 
-        fw_pkts = np.array([pkt for pkt, d in zip(self.pkts, self.directions) if d > 0])
-        bw_pkts = np.array([pkt for pkt, d in zip(self.pkts, self.directions) if d < 0])
+            # recalculate features
 
-        # forward and backward bulks
+            fw_pkts = np.array([pkt for pkt, d in zip(self.pkts, self.directions) if d > 0])
+            bw_pkts = np.array([pkt for pkt, d in zip(self.pkts, self.directions) if d < 0])
 
-        if len(fw_pkts) > 1:
-            fwt = np.zeros(len(fw_pkts))
-            fwt[1:] = fw_pkts[1:, 0] - fw_pkts[:-1, 0]
-            fw_blk_idx = np.where(fwt <= self.blk_thr)[0]
-            fw_bulk = fw_pkts[fw_blk_idx, :]
-            fw_blk_dur = np.sum(fwt[fw_blk_idx])
-        elif len(fw_pkts) == 1:
-            fw_bulk = [fw_pkts[0, :]]
-            fw_blk_dur = 0
-        else:
-            fw_bulk = []
-            fw_blk_dur = 0
-        fw_bulk = np.array(fw_bulk)
+            # forward and backward bulks
 
-        if len(bw_pkts) > 1:
-            bwt = np.zeros(len(bw_pkts))
-            bwt[1:] = bw_pkts[1:, 0] - bw_pkts[:-1, 0]
-            bw_blk_idx = np.where(bwt <= self.blk_thr)[0]
-            bw_bulk = bw_pkts[bw_blk_idx, :]
-            bw_blk_dur = np.sum(bwt[bw_blk_idx])
-        elif len(bw_pkts) == 1:
-            bw_bulk = [bw_pkts[0, :]]
-            bw_blk_dur = 0
-        else:
-            bw_bulk = []
-            bw_blk_dur = 0
-        bw_bulk = np.array(bw_bulk)
+            if len(fw_pkts) > 1:
+                fwt = np.zeros(len(fw_pkts))
+                fwt[1:] = fw_pkts[1:, 0] - fw_pkts[:-1, 0]
+                fw_blk_idx = np.where(fwt <= self.blk_thr)[0]
+                fw_bulk = fw_pkts[fw_blk_idx, :]
+                fw_blk_dur = np.sum(fwt[fw_blk_idx])
+            elif len(fw_pkts) == 1:
+                fw_bulk = [fw_pkts[0, :]]
+                fw_blk_dur = 0
+            else:
+                fw_bulk = []
+                fw_blk_dur = 0
+            fw_bulk = np.array(fw_bulk)
 
-        pkts = np.array(self.pkts)
+            if len(bw_pkts) > 1:
+                bwt = np.zeros(len(bw_pkts))
+                bwt[1:] = bw_pkts[1:, 0] - bw_pkts[:-1, 0]
+                bw_blk_idx = np.where(bwt <= self.blk_thr)[0]
+                bw_bulk = bw_pkts[bw_blk_idx, :]
+                bw_blk_dur = np.sum(bwt[bw_blk_idx])
+            elif len(bw_pkts) == 1:
+                bw_bulk = [bw_pkts[0, :]]
+                bw_blk_dur = 0
+            else:
+                bw_bulk = []
+                bw_blk_dur = 0
+            bw_bulk = np.array(bw_bulk)
 
-        iat = pkts[1:, 0] - pkts[:-1, 0]
-        self.fl_dur = pkts[-1, 0] - pkts[0, 0]
-        self.tot_fw_pk = len(fw_pkts)
-        self.tot_bw_pk = len(bw_pkts)
-        self.tot_l_fw_pkt = np.sum(fw_pkts[:, 1]) if len(fw_pkts) > 0 else 0
-        self.fw_pkt_l_max = np.max(fw_pkts[:, 1]) if len(fw_pkts) > 0 else 0
-        self.fw_pkt_l_min = np.min(fw_pkts[:, 1]) if len(fw_pkts) > 0 else 0
-        self.fw_pkt_l_avg = np.mean(fw_pkts[:, 1]) if len(fw_pkts) > 0 else 0
-        self.fw_pkt_l_std = np.std(fw_pkts[:, 1]) if len(fw_pkts) > 0 else 0
-        self.bw_pkt_l_max = np.max(bw_pkts[:, 1]) if len(bw_pkts) > 0 else 0
-        self.bw_pkt_l_min = np.min(bw_pkts[:, 1]) if len(bw_pkts) > 0 else 0
-        self.bw_pkt_l_avg = np.mean(bw_pkts[:, 1]) if len(bw_pkts) > 0 else 0
-        self.bw_pkt_l_std = np.std(bw_pkts[:, 1]) if len(bw_pkts) > 0 else 0
-        self.fl_byt_s = np.sum(pkts[:, 1]) / self.fl_dur if self.fl_dur > 0 else 0
-        self.fl_pkt_s = len(pkts) / self.fl_dur if self.fl_dur > 0 else 0
-        self.fl_iat_avg = np.mean(iat) if len(pkts) > 1 else 0
-        self.fl_iat_std = np.std(iat) if len(pkts) > 1 else 0
-        self.fl_iat_max = np.max(iat) if len(pkts) > 1 else 0
-        self.fl_iat_min = np.min(iat) if len(pkts) > 1 else 0
-        self.fw_iat_tot = np.sum(fw_pkts[1:, 0] - fw_pkts[:-1, 0]) if len(fw_pkts) > 1 else 0
-        self.fw_iat_avg = np.mean(fw_pkts[1:, 0] - fw_pkts[:-1, 0]) if len(fw_pkts) > 1 else 0
-        self.fw_iat_std = np.std(fw_pkts[1:, 0] - fw_pkts[:-1, 0]) if len(fw_pkts) > 1 else 0
-        self.fw_iat_max = np.max(fw_pkts[1:, 0] - fw_pkts[:-1, 0]) if len(fw_pkts) > 1 else 0
-        self.fw_iat_min = np.min(fw_pkts[1:, 0] - fw_pkts[:-1, 0]) if len(fw_pkts) > 1 else 0
-        self.bw_iat_tot = np.sum(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
-        self.bw_iat_avg = np.mean(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
-        self.bw_iat_std = np.std(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
-        self.bw_iat_max = np.max(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
-        self.bw_iat_min = np.min(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
+            pkts = np.array(self.pkts)
 
-        if len(fw_pkts) > 0:
-            fw_dur = fw_pkts[-1, 0] - fw_pkts[0, 0]
-            self.fw_pkt_s = len(fw_pkts) / fw_dur if fw_dur > 0 else 0
-        else:
-            self.fw_pkt_s = 0
-        if len(bw_pkts) > 0:
-            bw_dur = bw_pkts[-1, 0] - bw_pkts[0, 0]
-            self.bw_pkt_s = len(bw_pkts) / bw_dur if bw_dur > 0 else 0
-        else:
-            self.bw_pkt_s = 0
+            iat = pkts[1:, 0] - pkts[:-1, 0]
+            self.fl_dur = pkts[-1, 0] - pkts[0, 0]
+            self.tot_fw_pk = len(fw_pkts)
+            self.tot_bw_pk = len(bw_pkts)
+            self.tot_l_fw_pkt = np.sum(fw_pkts[:, 1]) if len(fw_pkts) > 0 else 0
+            self.fw_pkt_l_max = np.max(fw_pkts[:, 1]) if len(fw_pkts) > 0 else 0
+            self.fw_pkt_l_min = np.min(fw_pkts[:, 1]) if len(fw_pkts) > 0 else 0
+            self.fw_pkt_l_avg = np.mean(fw_pkts[:, 1]) if len(fw_pkts) > 0 else 0
+            self.fw_pkt_l_std = np.std(fw_pkts[:, 1]) if len(fw_pkts) > 0 else 0
+            self.bw_pkt_l_max = np.max(bw_pkts[:, 1]) if len(bw_pkts) > 0 else 0
+            self.bw_pkt_l_min = np.min(bw_pkts[:, 1]) if len(bw_pkts) > 0 else 0
+            self.bw_pkt_l_avg = np.mean(bw_pkts[:, 1]) if len(bw_pkts) > 0 else 0
+            self.bw_pkt_l_std = np.std(bw_pkts[:, 1]) if len(bw_pkts) > 0 else 0
+            self.fl_byt_s = np.sum(pkts[:, 1]) / self.fl_dur if self.fl_dur > 0 else 0
+            self.fl_pkt_s = len(pkts) / self.fl_dur if self.fl_dur > 0 else 0
+            self.fl_iat_avg = np.mean(iat) if len(pkts) > 1 else 0
+            self.fl_iat_std = np.std(iat) if len(pkts) > 1 else 0
+            self.fl_iat_max = np.max(iat) if len(pkts) > 1 else 0
+            self.fl_iat_min = np.min(iat) if len(pkts) > 1 else 0
+            self.fw_iat_tot = np.sum(fw_pkts[1:, 0] - fw_pkts[:-1, 0]) if len(fw_pkts) > 1 else 0
+            self.fw_iat_avg = np.mean(fw_pkts[1:, 0] - fw_pkts[:-1, 0]) if len(fw_pkts) > 1 else 0
+            self.fw_iat_std = np.std(fw_pkts[1:, 0] - fw_pkts[:-1, 0]) if len(fw_pkts) > 1 else 0
+            self.fw_iat_max = np.max(fw_pkts[1:, 0] - fw_pkts[:-1, 0]) if len(fw_pkts) > 1 else 0
+            self.fw_iat_min = np.min(fw_pkts[1:, 0] - fw_pkts[:-1, 0]) if len(fw_pkts) > 1 else 0
+            self.bw_iat_tot = np.sum(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
+            self.bw_iat_avg = np.mean(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
+            self.bw_iat_std = np.std(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
+            self.bw_iat_max = np.max(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
+            self.bw_iat_min = np.min(bw_pkts[1:, 0] - bw_pkts[:-1, 0]) if len(bw_pkts) > 1 else 0
 
-        self.pkt_len_min = np.min(pkts[:, 1])
-        self.pkt_len_max = np.max(pkts[:, 1])
-        self.pkt_len_avg = np.mean(pkts[:, 1])
-        self.pkt_len_std = np.std(pkts[:, 1])
+            if len(fw_pkts) > 0:
+                fw_dur = fw_pkts[-1, 0] - fw_pkts[0, 0]
+                self.fw_pkt_s = len(fw_pkts) / fw_dur if fw_dur > 0 else 0
+            else:
+                self.fw_pkt_s = 0
+            if len(bw_pkts) > 0:
+                bw_dur = bw_pkts[-1, 0] - bw_pkts[0, 0]
+                self.bw_pkt_s = len(bw_pkts) / bw_dur if bw_dur > 0 else 0
+            else:
+                self.bw_pkt_s = 0
 
-        self.down_up_ratio = len(bw_pkts) / len(fw_pkts) if len(fw_pkts) > 0 else 0
+            self.pkt_len_min = np.min(pkts[:, 1])
+            self.pkt_len_max = np.max(pkts[:, 1])
+            self.pkt_len_avg = np.mean(pkts[:, 1])
+            self.pkt_len_std = np.std(pkts[:, 1])
 
-        self.fw_byt_blk_avg = np.mean(fw_bulk[:, 1]) if len(fw_bulk) > 0 else 0
-        self.fw_pkt_blk_avg = len(fw_bulk)
-        self.fw_blk_rate_avg = np.sum(fw_bulk[:, 1]) / fw_blk_dur if fw_blk_dur > 0 else 0
-        self.bw_byt_blk_avg = np.mean(bw_bulk[:, 1]) if len(bw_bulk) > 0 else 0
-        self.bw_pkt_blk_avg = len(bw_bulk)
-        self.bw_blk_rate_avg = np.sum(bw_bulk[:, 1]) / bw_blk_dur if bw_blk_dur > 0 else 0
+            self.down_up_ratio = len(bw_pkts) / len(fw_pkts) if len(fw_pkts) > 0 else 0
 
-        self.subfl_fw_pk = len(fw_pkts) / (len(fw_pkts) - len(fw_bulk)) if len(fw_pkts) - len(fw_bulk) > 0 else 0
-        self.subfl_fw_byt = np.sum(fw_pkts[:, 1]) / (len(fw_pkts) - len(fw_bulk)) if len(fw_pkts) - len(fw_bulk) > 0 else 0
-        self.subfl_bw_pk = len(bw_pkts) / (len(bw_pkts) - len(bw_bulk)) if len(bw_pkts) - len(bw_bulk) > 0 else 0
-        self.subfl_bw_byt = np.sum(bw_pkts[:, 1]) / (len(bw_pkts) - len(bw_bulk)) if len(bw_pkts) - len(bw_bulk) > 0 else 0
+            self.fw_byt_blk_avg = np.mean(fw_bulk[:, 1]) if len(fw_bulk) > 0 else 0
+            self.fw_pkt_blk_avg = len(fw_bulk)
+            self.fw_blk_rate_avg = np.sum(fw_bulk[:, 1]) / fw_blk_dur if fw_blk_dur > 0 else 0
+            self.bw_byt_blk_avg = np.mean(bw_bulk[:, 1]) if len(bw_bulk) > 0 else 0
+            self.bw_pkt_blk_avg = len(bw_bulk)
+            self.bw_blk_rate_avg = np.sum(bw_bulk[:, 1]) / bw_blk_dur if bw_blk_dur > 0 else 0
+
+            self.subfl_fw_pk = len(fw_pkts) / (len(fw_pkts) - len(fw_bulk)) if len(fw_pkts) - len(fw_bulk) > 0 else 0
+            self.subfl_fw_byt = np.sum(fw_pkts[:, 1]) / (len(fw_pkts) - len(fw_bulk)) if len(fw_pkts) - len(fw_bulk) > 0 else 0
+            self.subfl_bw_pk = len(bw_pkts) / (len(bw_pkts) - len(bw_bulk)) if len(bw_pkts) - len(bw_bulk) > 0 else 0
+            self.subfl_bw_byt = np.sum(bw_pkts[:, 1]) / (len(bw_pkts) - len(bw_bulk)) if len(bw_pkts) - len(bw_bulk) > 0 else 0
+
+            self.newpkts = False
 
         return np.array([
             self.fl_dur,  # 0
