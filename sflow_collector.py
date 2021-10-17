@@ -54,9 +54,9 @@ class sFlowRawPacketHeader:
                 self.ip_source = inet_ntop(AF_INET, self.header[26 + offset : 30 + offset])
                 self.ip_destination = inet_ntop(AF_INET, self.header[30 + offset : 34 + offset])
 
-                self.source_port = unpack(">i", datagram[34 + offset : 38 + offset])[0]
-                self.destination_port = unpack(">i", datagram[38 + offset : 42 + offset])[0]
-                self.tcp_flags = unpack(">i", datagram[42 + offset : 46 + offset])[0]
+                self.source_port = unpack(">i", self.header[34 + offset : 38 + offset])[0]
+                self.destination_port = unpack(">i", self.header[38 + offset : 42 + offset])[0]
+                self.tcp_flags = unpack(">i", self.header[42 + offset : 46 + offset])[0]
 
                 if self.ip_header_legth > 5:
                     self.ip_options = self.header[34 + offset : (35 + offset) + ((self.ip_header_legth - 5) * 4)]
