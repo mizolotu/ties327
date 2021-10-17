@@ -6,7 +6,7 @@ try:
     while True:
         buff += sys.stdin.read(1)
         if buff.endswith('\n'):
-            print(buff)
+            print(len(buff))
             buff = ''
             k = k + 1
 except KeyboardInterrupt:
