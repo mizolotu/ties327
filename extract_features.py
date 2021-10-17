@@ -260,9 +260,7 @@ def extract_features(pkt_q, subnet, ports, step, thr):
     tstart = time()
     while True:
 
-        id = None
-        direction = 0
-        try:
+        if not pkt_q.empty():
             timestamp, dst, dport, src, sport, size = pkt_q.get()
             if sport in ports and dst.startswith(subnet):
                 id = [dst, dport, src, sport]
@@ -270,8 +268,9 @@ def extract_features(pkt_q, subnet, ports, step, thr):
             elif dport in ports and src.startswith(subnet):
                 id = [src, sport, dst, dport]
                 direction = 1
-        except Exception as e:
-            print(e)
+        else:
+            id = None
+            direction = 0
 
         if time() > (tstart + step):
 
