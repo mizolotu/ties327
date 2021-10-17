@@ -327,7 +327,7 @@ if __name__ == '__main__':
                     flow_objects[idx].append(timestamp, size, direction)
                 else:
                     flow_ids.append(id)
-                    flow_objects.append(Flow(timestamp, id, size))
+                    flow_objects.append(Flow(timestamp, id, direction, size))
 
             # lists to arrays
 
