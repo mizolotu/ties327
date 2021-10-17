@@ -278,8 +278,6 @@ def extract_features(pkt_q, subnet, ports, step, thr):
             id = None
             direction = 0
 
-        print(flow_ids)
-
         tnow = time()
         if tnow > (tstart + step):
 
@@ -325,8 +323,8 @@ if __name__ == '__main__':
 
     subnet = '192.168.10.'
     ports = [80, 443]
-    step = 5
-    thr = 5
+    step = 3
+    thr = 10
 
     # queue
 
