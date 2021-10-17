@@ -280,10 +280,10 @@ def extract_features(pkt_q, subnet, ports, step, thr):
             direction = 0
 
         tnow = time()
+        if tnow > (tstart + step):
 
-        # remove old flows
+            # remove old flows
 
-        if step <= thr:
             tmp_ids = []
             tmp_objects = []
             for i, o in zip(flow_ids, flow_objects):
@@ -324,7 +324,7 @@ if __name__ == '__main__':
     subnet = '192.168.10.'
     ports = [80, 443]
     step = 3
-    thr = 5
+    thr = 3
 
     # queue
 
