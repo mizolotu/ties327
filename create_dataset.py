@@ -5,7 +5,6 @@ from config import attacker_ip
 if __name__ == '__main__':
 
     for line in iter(sys.stdin.readline, b''):
-        print(line)
         try:
             spl = line.strip().split(',')
             features = ','.join(spl[4:])
