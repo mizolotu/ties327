@@ -301,7 +301,7 @@ def extract_features(pkt_q, subnet, ports, step, thr):
                     o_features = o.get_features()
                     id_str = ','.join([str(item) for item in i])
                     features_str = ','.join([str(item) for item in o_features])
-                    line = f'{id_str},{features_str}'
+                    line = f'{id_str},{features_str}\n'
                     sys.stdout.write(line)
                     sys.stdout.flush()
 
