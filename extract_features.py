@@ -4,7 +4,7 @@ import numpy as np
 from queue import Queue
 from threading import Thread
 from time import time
-from config import subnet, ports, step, thr
+from config import ports, step, thr
 
 class Flow():
 
@@ -260,7 +260,7 @@ class Flow():
         ])
 
 
-def extract_features(pkt_q, subnet, ports, step, thr):
+def extract_features(pkt_q, ports, step, thr):
 
     flow_ids = []
     flow_objects = []
@@ -270,10 +270,10 @@ def extract_features(pkt_q, subnet, ports, step, thr):
 
         if not pkt_q.empty():
             timestamp, dst, dport, src, sport, size = pkt_q.get()
-            if sport in ports and dst.startswith(subnet):
+            if sport in ports:
                 id = [dst, dport, src, sport]
                 direction = -1
-            elif dport in ports and src.startswith(subnet):
+            elif dport in ports:
                 id = [src, sport, dst, dport]
                 direction = 1
         else:
@@ -328,7 +328,7 @@ if __name__ == '__main__':
 
     # feature extraction thread
 
-    ef_thread = Thread(target=extract_features, args=(pkt_q, subnet, ports, step, thr), daemon=True)
+    ef_thread = Thread(target=extract_features, args=(pkt_q, ports, step, thr), daemon=True)
     ef_thread.start()
 
     for line in iter(sys.stdin.readline, b''):

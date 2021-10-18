@@ -5,7 +5,6 @@ collector_port = 6343
 
 # feature extraction parameters
 
-subnet = '192.168.10.'  # for the advanced assignment change to '192.168.12.'
 ports = [80, 443]
 step = 3
 thr = 3
