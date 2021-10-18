@@ -16,7 +16,7 @@ attacker_ip = '192.168.12.2'
 # ml parameters
 
 layers = [256, 256]
-dropout = 0.1
+dropout = 0.25
 learning_rate = 0.5e-5
 batch_size = 64
 
