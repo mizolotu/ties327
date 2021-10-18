@@ -4,6 +4,7 @@ import numpy as np
 from queue import Queue
 from threading import Thread
 from time import time
+from config import subnet, ports, step, thr
 
 class Flow():
 
@@ -300,7 +301,9 @@ def extract_features(pkt_q, subnet, ports, step, thr):
                     o_features = o.get_features()
                     id_str = ','.join([str(item) for item in i])
                     features_str = ','.join([str(item) for item in o_features])
-                    print(f'{id_str},{features_str}')
+                    line = f'{id_str},{features_str}'
+                    sys.stdout.write(line)
+                    sys.stdout.flush()
 
             # update time
 
@@ -319,13 +322,6 @@ def extract_features(pkt_q, subnet, ports, step, thr):
 
 if __name__ == '__main__':
 
-    # params
-
-    subnet = '192.168.10.'
-    ports = [80, 443]
-    step = 3
-    thr = 3
-
     # queue
 
     pkt_q = Queue()
@@ -337,7 +333,7 @@ if __name__ == '__main__':
 
     for line in iter(sys.stdin.readline, b''):
         try:
-            spl = line.split(',')
+            spl = line.strip().split(',')
             pkt_q.put([float(spl[0]), spl[1], int(spl[2]), spl[3], int(spl[4]), float(spl[5])])
         except:
             pass

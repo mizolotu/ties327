@@ -3,6 +3,7 @@ import socket, sys
 from socket import AF_INET, AF_INET6, inet_ntop
 from struct import unpack
 from time import time
+from config import collector_ip, collector_port
 
 
 class sFlowRecordBase:
@@ -196,11 +197,6 @@ class sFlow:
 
 
 if __name__ == '__main__':
-
-    # params
-
-    collector_ip = "127.0.0.1"
-    collector_port = 6343
 
     # sflow socket
 
