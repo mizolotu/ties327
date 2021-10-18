@@ -10,12 +10,13 @@ if __name__ == '__main__':
     # parse args
 
     parser = arp.ArgumentParser(description='Train model')
-    parser.add_argument('-d', '--data', help='Data files', nargs='+')
+    parser.add_argument('-t', '--traindata', help='Train data', nargs='+')
+    parser.add_argument('-i', '--infdata', help='Inference data', nargs='+')
     args = parser.parse_args()
 
     # read data
 
-    X, Y = read_data(args.data)
+    X, Y = read_data(args.traindata)
     assert X.shape[0] == len(Y), 'Something is wrong with the data!'
     assert 0 in np.unique(Y), 'No data with label 0 found, please add normal samples to the dataset!'
     assert 1 in np.unique(Y), 'No data with label 1 found, please add malicious samples to the dataset!'
@@ -51,4 +52,11 @@ if __name__ == '__main__':
             restore_best_weights=True
         )]
     )
+
+    # test if there inference data
+
+    if args.infdata is not None:
+        Xi, Yi = read_data(args.infdata)
+        P = model.predict(Xi).flatten()
+        print(P, Y)
 
