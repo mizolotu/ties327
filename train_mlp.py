@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import argparse as arp
 
-from utils import read_data, remove_bias
+from utils import read_data, remove_bias, accuracy
 from config import layers, dropout, learning_rate, batch_size, epochs, patience
 
 if __name__ == '__main__':
@@ -58,5 +58,6 @@ if __name__ == '__main__':
     if args.infdata is not None:
         Xi, Yi = read_data(args.infdata)
         P = model.predict(Xi).flatten()
-        print(P, Y)
+        acc = accuracy(P, Yi)
+        print(f'Accuracy = {acc}')
 
