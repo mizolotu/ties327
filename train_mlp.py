@@ -3,7 +3,7 @@ import numpy as np
 import argparse as arp
 
 from utils import read_data, remove_bias
-from config import layers, dropout, learning_rate, epochs, patience
+from config import layers, dropout, learning_rate, batch_size, epochs, patience
 
 if __name__ == '__main__':
 
@@ -42,6 +42,7 @@ if __name__ == '__main__':
         X, Y,
         validation_split=0.3,
         epochs=epochs,
+        batch_size=batch_size,
         callbacks=[tf.keras.callbacks.EarlyStopping(
             monitor='val_accuracy',
             verbose=0,
