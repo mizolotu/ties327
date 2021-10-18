@@ -1,9 +1,9 @@
-import pandas as pd
 import tensorflow as tf
 import numpy as np
 import argparse as arp
 
-from utils import *
+from utils import read_data, remove_bias
+from config import layers, dropout, learning_rate, epochs, patience
 
 if __name__ == '__main__':
 
@@ -15,23 +15,39 @@ if __name__ == '__main__':
 
     # read data
 
-    X, Y = [], []
-    for f in args.data:
-        try:
-            p = pd.read_csv(f, header=None)
-            v = p.values
-            X.append(v[:, :-1])
-            Y.append(v[:, -1])
-        except Exception as e:
-            print(e)
-    X = np.vstack(X)
-    Y = np.hstack(Y)
+    X, Y = read_data(args.data)
     assert X.shape[0] == len(Y), 'Something is wrong with the data!'
     assert 0 in np.unique(Y), 'No data with label 0 found, please add normal samples to the dataset!'
     assert 1 in np.unique(Y), 'No data with label 1 found, please add malicious samples to the dataset!'
 
     # increase the number of malicious samples
-    print([len(np.where(Y == y)[0]) for y in np.unique(Y)])
-    X, Y = add_more_samples(X, Y)
-    print([len(np.where(Y == y)[0]) for y in np.unique(Y)])
+
+    X, Y = remove_bias(X, Y)
+
+    # compile model
+
+    nfeatures = X.shape[1]
+    inputs = tf.keras.layers.Input(shape=(nfeatures,))
+    hidden = tf.keras.layers.BatchNormalization()(inputs)
+    for layer in layers:
+        hidden = tf.keras.layers.Dense(layer, activation='relu')(hidden)
+        hidden = tf.keras.layers.Dropout(dropout)(hidden)
+    outputs = tf.keras.layers.Dense(1, activation='sigmoid')(hidden)
+    model = tf.keras.models.Model(inputs=inputs, outputs=outputs)
+    model.compile(loss=tf.keras.losses.BinaryCrossentropy(), optimizer=tf.keras.optimizers.Adam(lr=learning_rate), metrics=[tf.keras.metrics.BinaryAccuracy(name='accuracy'), tf.keras.metrics.Precision(name='precision')])
+
+    # fit the model
+
+    model.fit(
+        X, Y,
+        validation_split=0.3,
+        epochs=epochs,
+        callbacks=[tf.keras.callbacks.EarlyStopping(
+            monitor='val_accuracy',
+            verbose=0,
+            patience=patience,
+            mode='max',
+            restore_best_weights=True
+        )]
+    )
 
