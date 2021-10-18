@@ -14,7 +14,7 @@ if __name__ == '__main__':
                 label = 1
             else:
                 label = 0
-            line = f'{features},{label}'
+            line = f'{features},{label}\n'
             sys.stdout.write(line)
             sys.stdout.flush()
         except Exception as e:
