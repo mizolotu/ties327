@@ -8,8 +8,8 @@ if __name__ == '__main__':
         try:
             spl = line.strip().split(',')
             features = ','.join(spl[4:])
-            src_ip = spl[1]
-            dst_ip = spl[3]
+            src_ip = spl[0]
+            dst_ip = spl[2]
             if src_ip == attacker_ip or dst_ip == attacker_ip:
                 label = 1
             else:
