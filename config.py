@@ -18,8 +18,8 @@ attacker_ip = '192.168.12.2'
 validation_split = 0.4
 layers = [256, 256]
 dropout = 0.5
-learning_rate = 0.5e-5
+learning_rate = 1e-4
 batch_size = 64
 
 epochs = 1000
-patience = 100
+patience = 200
