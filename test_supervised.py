@@ -24,7 +24,7 @@ def classify(q, model, step):
                 sys.stdout.write('Probability of a reverse shell:\n')
                 sys.stdout.flush()
                 for id, pr in zip(ids, predictions):
-                    line = f'{id} - {pr[0] * 100}%\n'
+                    line = f'{id} - {pr[0] * 100} %\n'
                     sys.stdout.write(line)
                     sys.stdout.flush()
             ids, batch = [], []

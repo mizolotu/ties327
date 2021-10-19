@@ -297,13 +297,12 @@ def extract_features(pkt_q, ports, step, thr):
             # calculate_features
 
             for i, o in zip(flow_ids, flow_objects):
-                if o.newpkts:
-                    o_features = o.get_features()
-                    id_str = ','.join([str(item) for item in i])
-                    features_str = ','.join([str(item) for item in o_features])
-                    line = f'{id_str},{features_str}\n'
-                    sys.stdout.write(line)
-                    sys.stdout.flush()
+                o_features = o.get_features()
+                id_str = ','.join([str(item) for item in i])
+                features_str = ','.join([str(item) for item in o_features])
+                line = f'{id_str},{features_str}\n'
+                sys.stdout.write(line)
+                sys.stdout.flush()
 
             # update time
 
