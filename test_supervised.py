@@ -19,13 +19,16 @@ def classify(q, model, step):
         tnow = time()
         if tnow > (tstart + step):
             os.system('clear')
-            predictions = model.predict(batch)
-            sys.stdout.write('Probability of a reverse shell:')
-            sys.stdout.flush()
-            for id, pr in zip(ids, predictions):
-                line = f'{id} - {pr * 100}%\n'
-                sys.stdout.write(line)
+            if len(batch) > 0:
+                batch = np.vstack(batch)
+                predictions = model.predict(batch)
+                sys.stdout.write('Probability of a reverse shell:')
                 sys.stdout.flush()
+                for id, pr in zip(ids, predictions):
+                    line = f'{id} - {pr * 100}%\n'
+                    sys.stdout.write(line)
+                    sys.stdout.flush()
+            ids, batch = [], []
 
 if __name__ == '__main__':
 
