@@ -15,7 +15,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # read data
-
+    print(args.traindata)
     X, Y = read_data(args.traindata)
     assert X.shape[0] == len(Y), 'Something is wrong with the data!'
     assert 0 in np.unique(Y), 'No data with label 0 found, please add normal samples to the dataset!'
