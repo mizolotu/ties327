@@ -3,7 +3,7 @@ import pandas as pd
 
 def read_data(data_files):
     import os
-    print(os.curdir)
+    print(os.listdir())
     X, Y = [], []
     for f in data_files:
         try:
