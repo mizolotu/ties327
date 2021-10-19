@@ -64,12 +64,13 @@ if __name__ == '__main__':
         predictions = model.predict(Xi).flatten()
         binary_predictions = np.zeros_like(predictions)
         binary_predictions[np.where(predictions > 0.5)[0]] = 1
-        idx_tp = np.where((labels == 1) & (binary_predictions == 1))[0]
-        idx_tn = np.where((labels == 0) & (binary_predictions == 0))[0]
-        idx_fp = np.where((labels == 0) & (binary_predictions == 1))[0]
-        idx_fn = np.where((labels == 1) & (binary_predictions == 0))[0]
+        print(float(len(np.where(labels == binary_predictions)[0])) / len(labels))
+        idx_tp = np.where((labels == 1) & (binary_predictions == 1))[0]  # true positives
+        idx_tn = np.where((labels == 0) & (binary_predictions == 0))[0]  # true negatives
+        idx_fp = np.where((labels == 0) & (binary_predictions == 1))[0]  # false positives
+        idx_fn = np.where((labels == 1) & (binary_predictions == 0))[0]  # false negatives
         acc = float(len(idx_tp) + len(idx_tn)) / len(labels) * 100
         tpr = float(len(idx_tp)) / (len(idx_tp) + len(idx_fn)) * 100
         fpr = float(len(idx_fp)) / (len(idx_tn) + len(idx_fp)) * 100
-        print('Accuracy = {0}\nTPR = {1}\nFPR = {2}'.format(acc, tpr, fpr))
+        print('Accuracy = {0}\nTrue positive rate = {1}\nFalse positive rate = {2}'.format(acc, tpr, fpr))
 
