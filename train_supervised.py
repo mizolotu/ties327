@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import argparse as arp
 
-from utils import read_data, remove_bias, accuracy
+from utils import read_data, remove_bias
 from config import layers, dropout, learning_rate, batch_size, epochs, patience, validation_split
 
 if __name__ == '__main__':
@@ -62,10 +62,12 @@ if __name__ == '__main__':
     if args.infdata is not None:
         Xi, labels = read_data(args.infdata)
         predictions = model.predict(Xi).flatten()
-        idx_tp = np.where((labels > 0) & (predictions > 0))[0]
-        idx_tn = np.where((labels == 0) & (predictions == 0))[0]
-        idx_fp = np.where((labels == 0) & (predictions > 0))[0]
-        idx_fn = np.where((labels > 0) & (predictions == 0))[0]
+        binary_predictions = np.zeros_like(predictions)
+        binary_predictions[np.where(predictions > 0.5)[0]] = 1
+        idx_tp = np.where((labels == 1) & (binary_predictions == 1))[0]
+        idx_tn = np.where((labels == 0) & (binary_predictions == 0))[0]
+        idx_fp = np.where((labels == 0) & (binary_predictions == 1))[0]
+        idx_fn = np.where((labels == 1) & (binary_predictions == 0))[0]
         acc = float(len(idx_tp) + len(idx_tn)) / len(labels) * 100
         tpr = float(len(idx_tp)) / (len(idx_tp) + len(idx_fn)) * 100
         fpr = float(len(idx_fp)) / (len(idx_tn) + len(idx_fp)) * 100

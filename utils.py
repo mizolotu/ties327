@@ -26,8 +26,3 @@ def remove_bias(X, Y):
         X_new.append(X[idx, :])
         Y_new.append(Y[idx])
     return np.vstack(X_new), np.hstack(Y_new)
-
-def accuracy(predictions, labels):
-    binary_predictions = np.zeros_like(predictions)
-    binary_predictions[np.where(predictions > 0.5)[0]] = 1
-    return float(len(np.where(binary_predictions == labels)[0])) / len(labels)
