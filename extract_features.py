@@ -6,6 +6,7 @@ from threading import Thread
 from time import time
 from config import ports, subnet, step, thr
 
+
 class Flow():
 
     def __init__(self, ts, id, direction, size, blk_thr=1.0, idl_thr=5.0):
@@ -102,7 +103,7 @@ class Flow():
         self.last_ts = ts
         self.newpkts = True
 
-    def get_features(self):
+    def calculate_features(self, tnow):
 
         # recalculate features
 
@@ -142,7 +143,7 @@ class Flow():
         pkts = np.array(self.pkts)
 
         iat = pkts[1:, 0] - pkts[:-1, 0]
-        self.fl_dur = pkts[-1, 0] - pkts[0, 0]
+        self.fl_dur = tnow - pkts[0, 0]
         self.tot_fw_pk = len(fw_pkts)
         self.tot_bw_pk = len(bw_pkts)
         self.tot_l_fw_pkt = np.sum(fw_pkts[:, 1]) if len(fw_pkts) > 0 else 0
@@ -297,7 +298,7 @@ def extract_features(pkt_q, ports, subnet, step, thr):
             # calculate_features
 
             for i, o in zip(flow_ids, flow_objects):
-                o_features = o.get_features()
+                o_features = o.calculate_features(tnow)
                 id_str = ','.join([str(item) for item in i])
                 features_str = ','.join([str(item) for item in o_features])
                 line = f'{id_str},{features_str}\n'

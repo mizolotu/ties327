@@ -53,7 +53,7 @@ if __name__ == '__main__':
             src_port = spl[1]
             dst_ip = spl[2]
             dst_port = spl[3]
-            id = f'{src_ip}:{src_port} -> {dst_ip}:{dst_port}'
+            id = f'{src_ip}:{src_port}->{dst_ip}:{dst_port}'
             features = np.array([float(item) for item in spl[4:]])
             q.put((id, features))
         except Exception as e:
