@@ -3,7 +3,7 @@ import numpy as np
 import argparse as arp
 
 from utils import read_data, remove_bias, accuracy
-from config import layers, dropout, learning_rate, batch_size, epochs, patience
+from config import layers, dropout, learning_rate, batch_size, epochs, patience, validation_split
 
 if __name__ == '__main__':
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     model.fit(
         X, Y,
-        validation_split=0.3,
+        validation_split=validation_split,
         epochs=epochs,
         batch_size=batch_size,
         callbacks=[tf.keras.callbacks.EarlyStopping(
