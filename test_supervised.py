@@ -29,6 +29,7 @@ def classify(q, model, step):
                     sys.stdout.write(line)
                     sys.stdout.flush()
             ids, batch = [], []
+            tstart = time()
 
 if __name__ == '__main__':
 
