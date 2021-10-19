@@ -64,7 +64,6 @@ if __name__ == '__main__':
         predictions = model.predict(Xi).flatten()
         binary_predictions = np.zeros_like(predictions)
         binary_predictions[np.where(predictions > 0.5)[0]] = 1
-        print(float(len(np.where(labels == binary_predictions)[0])) / len(labels))
         idx_tp = np.where((labels == 1) & (binary_predictions == 1))[0]  # true positives
         idx_tn = np.where((labels == 0) & (binary_predictions == 0))[0]  # true negatives
         idx_fp = np.where((labels == 0) & (binary_predictions == 1))[0]  # false positives
