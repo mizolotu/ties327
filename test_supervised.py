@@ -1,4 +1,4 @@
-import sys, os
+import sys
 import tensorflow as tf
 import numpy as np
 
@@ -18,11 +18,10 @@ def classify(q, model, step):
 
         tnow = time()
         if tnow > (tstart + step):
-            os.system('clear')
             if len(batch) > 0:
                 batch = np.vstack(batch)
                 predictions = model.predict(batch)
-                sys.stdout.write('Probability of a reverse shell:')
+                sys.stdout.write('Probability of a reverse shell\n:')
                 sys.stdout.flush()
                 for id, pr in zip(ids, predictions):
                     line = f'{id} - {pr * 100}%\n'
@@ -30,6 +29,7 @@ def classify(q, model, step):
                     sys.stdout.flush()
             ids, batch = [], []
             tstart = time()
+            print('\n')
 
 if __name__ == '__main__':
 
