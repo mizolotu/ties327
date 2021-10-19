@@ -17,6 +17,5 @@ if __name__ == '__main__':
             line = f'{features},{label}\n'
             sys.stdout.write(line)
             sys.stdout.flush()
-        except Exception as e:
-            print(e)
+        except:
             pass

@@ -15,7 +15,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # read data
-    print(args.traindata)
+
     X, Y = read_data(args.traindata)
     assert X.shape[0] == len(Y), 'Something is wrong with the data!'
     assert 0 in np.unique(Y), 'No data with label 0 found, please add normal samples to the dataset!'
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     # save model
 
-    model.save('saved_model')
+    model.save('supervised_model')
 
     # test if there inference data
 
@@ -71,5 +71,4 @@ if __name__ == '__main__':
         acc = float(len(idx_tp) + len(idx_tn)) / len(labels) * 100
         tpr = float(len(idx_tp)) / (len(idx_tp) + len(idx_fn)) * 100
         fpr = float(len(idx_fp)) / (len(idx_tn) + len(idx_fp)) * 100
-        print('Accuracy = {0}\nTrue positive rate = {1}\nFalse positive rate = {2}'.format(acc, tpr, fpr))
-
+        print(f'Accuracy = {acc}%\nTrue positive rate = {tpr}%\nFalse positive rate = {fpr}%')

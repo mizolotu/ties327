@@ -22,4 +22,4 @@ learning_rate = 1e-4
 batch_size = 64
 
 epochs = 1000
-patience = 200
+patience = 250
