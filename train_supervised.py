@@ -53,11 +53,21 @@ if __name__ == '__main__':
         )]
     )
 
+    # save model
+
+    model.save('saved_model')
+
     # test if there inference data
 
     if args.infdata is not None:
-        Xi, Yi = read_data(args.infdata)
-        P = model.predict(Xi).flatten()
-        acc = accuracy(P, Yi)
-        print(f'Accuracy = {acc}')
+        Xi, labels = read_data(args.infdata)
+        predictions = model.predict(Xi).flatten()
+        idx_tp = np.where((labels > 0) & (predictions > 0))[0]
+        idx_tn = np.where((labels == 0) & (predictions == 0))[0]
+        idx_fp = np.where((labels == 0) & (predictions > 0))[0]
+        idx_fn = np.where((labels > 0) & (predictions == 0))[0]
+        acc = float(len(idx_tp) + len(idx_tn)) / len(labels) * 100
+        tpr = float(len(idx_tp)) / (len(idx_tp) + len(idx_fn)) * 100
+        fpr = float(len(idx_fp)) / (len(idx_tn) + len(idx_fp)) * 100
+        print('Accuracy = {0}\nTPR = {1}\nFPR = {2}'.format(acc, tpr, fpr))
 
