@@ -20,11 +20,12 @@ def classify(q, model, step):
         if tnow > (tstart + step):
             if len(batch) > 0:
                 batch = np.vstack(batch)
-                predictions = model.predict(batch)
+                predictions = model.predict(batch)[:, 0]
                 sys.stdout.write('Probability of a reverse shell:\n')
                 sys.stdout.flush()
-                for id, pr in zip(ids, predictions):
-                    line = f'{id} - {pr[0] * 100} %\n'
+                idx = np.argsort(predictions)[::-1]
+                for i in idx:
+                    line = f'{ids[i]} - {predictions[i] * 100} %\n'
                     sys.stdout.write(line)
                     sys.stdout.flush()
             ids, batch = [], []
