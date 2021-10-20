@@ -93,7 +93,7 @@ if __name__ == '__main__':
     # save thr
 
     with open('thr', 'w') as f:
-        f.write(thr)
+        f.write(str(thr))
 
     # test if there inference data
 
