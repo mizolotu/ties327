@@ -107,7 +107,7 @@ if __name__ == '__main__':
     with open('params', 'w') as f:
         json.dump({'thr': thr_best, 'xmin': xmin.tolist(), 'xmax': xmax.tolist()}, f)
 
-    # test if there inference data
+    # test if there is inference data
 
     if args.infdata is not None:
         Xi, labels = read_data(args.infdata)

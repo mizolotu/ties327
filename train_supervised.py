@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     model.save('supervised_model')
 
-    # test if there inference data
+    # test if there is inference data
 
     if args.infdata is not None:
         Xi, labels = read_data(args.infdata)
