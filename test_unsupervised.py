@@ -44,8 +44,8 @@ if __name__ == '__main__':
 
     with open('params', 'r') as f:
         params = json.load(f)
-    xmin = params['xmin']
-    xmax = params['xmax']
+    xmin = np.array(params['xmin'])
+    xmax = np.array(params['xmax'])
     thr = params['thr']
 
     # queue

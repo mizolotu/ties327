@@ -104,7 +104,7 @@ if __name__ == '__main__':
     # save thr
 
     with open('params', 'w') as f:
-        json.dump({'thr': thr_best, 'xmin': xmin, 'xmax': xmax}, f)
+        json.dump({'thr': thr_best, 'xmin': xmin.tolist(), 'xmax': xmax.tolist()}, f)
 
     # test if there inference data
 
