@@ -1,3 +1,4 @@
+import json
 import tensorflow as tf
 import numpy as np
 import argparse as arp
@@ -102,8 +103,8 @@ if __name__ == '__main__':
 
     # save thr
 
-    with open('thr', 'w') as f:
-        f.write(str(thr_best))
+    with open('params', 'w') as f:
+        json.dump({'thr': thr_best, 'xmin': xmin, 'xmax': xmax}, f)
 
     # test if there inference data
 
