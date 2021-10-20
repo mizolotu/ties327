@@ -91,7 +91,7 @@ if __name__ == '__main__':
         n10 = 0
         for i, j in enumerate(idx):
             thr.append(p0s[j])
-            thridx = np.where(p1s[n10:] < thr)[0]
+            thridx = np.where(p1s[n10:] < thr[-1])[0]
             n10 += len(thridx)
             h += 1
             acc[i + 1] = (h - n10 + n1) / n
