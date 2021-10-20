@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     # load model
 
-    model = tf.keras.models.load_model('supervised_model')
+    model = tf.keras.models.load_model('unsupervised_model')
 
     # load params
 
