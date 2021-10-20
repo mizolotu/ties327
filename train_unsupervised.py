@@ -86,10 +86,11 @@ if __name__ == '__main__':
     else:
         idx = np.where(p0s > p1s[0])[0]
         acc = [float(len(p0s) - len(idx) + len(p1s)) / n, *np.zeros(len(idx))]
+        thr = [p0s[idx[0] - 1]]
         h = n0 - len(idx)
         n10 = 0
         for i, j in enumerate(idx):
-            thr = p0s[j]
+            thr.append(p0s[j])
             thridx = np.where(p1s[n10:] < thr)[0]
             n10 += len(thridx)
             h += 1
