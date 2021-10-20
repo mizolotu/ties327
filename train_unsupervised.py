@@ -24,6 +24,15 @@ if __name__ == '__main__':
     # increase the number of malicious samples
 
     X, Y = remove_bias(X, Y)
+
+    # minmax std
+
+    xmin = np.min(X, 0)
+    xmax = np.max(X, 0)
+    X = (X - xmin[None, :]) / (xmax[None, :] - xmin[None, :] + 1e-10)
+
+    # split into normal and malicious data
+
     idx0 = np.where(Y == 0)[0]
     idx1 = np.where(Y == 1)[0]
     X0 = X[idx0, :]
