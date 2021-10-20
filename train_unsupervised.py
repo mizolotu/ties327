@@ -39,7 +39,7 @@ if __name__ == '__main__':
     for layer in layers:
         hidden = tf.keras.layers.Dense(layer, activation='relu')(hidden)
         hidden = tf.keras.layers.Dropout(dropout)(hidden)
-    outputs = tf.keras.layers.Dense(nfeatures)(hidden)
+    outputs = tf.keras.layers.Dense(nfeatures)(hidden, activation='linear')
     model = tf.keras.models.Model(inputs=inputs, outputs=outputs)
     model.compile(loss=tf.keras.losses.MeanSquaredError(), optimizer=tf.keras.optimizers.Adam(lr=learning_rate))
 
