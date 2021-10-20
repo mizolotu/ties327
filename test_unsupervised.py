@@ -1,4 +1,4 @@
-import sys
+import sys, json
 import tensorflow as tf
 import numpy as np
 
@@ -20,7 +20,10 @@ def classify(q, model, step):
         if tnow > (tstart + step):
             if len(batch) > 0:
                 batch = np.vstack(batch)
-                predictions = model.predict(batch)
+                batch = (batch - xmin[None, :]) / (xmax[None, :] - xmin[None, :] + 1e-10)
+                R = model.predict(batch)
+                probs = np.linalg.norm(R - batch, axis=-1)
+                predictions = np.clip(probs / thr, 0, 1)
                 sys.stdout.write('Probability of a reverse shell:\n')
                 sys.stdout.flush()
                 for id, pr in zip(ids, predictions):
@@ -36,6 +39,14 @@ if __name__ == '__main__':
     # load model
 
     model = tf.keras.models.load_model('supervised_model')
+
+    # load params
+
+    with open('params', 'r') as f:
+        params = json.load(f)
+    xmin = params['xmin']
+    xmax = params['xmax']
+    thr = params['thr']
 
     # queue
 
