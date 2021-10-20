@@ -80,6 +80,7 @@ if __name__ == '__main__':
     n0 = len(p0s)
     n1 = len(p1s)
     if p1s[0] > p0s[-1]:
+        print('here')
         acc = [1]
         thr = [(p1s[0] + p0s[-1]) / 2]
     else:
@@ -93,7 +94,9 @@ if __name__ == '__main__':
             n10 += len(thridx)
             h += 1
             acc[i + 1] = (h - n10 + n1) / n
-    print(thr, np.max(acc))
+    argmax = np.argmax(acc)
+    thr_best = thr[argmax]
+    print(thr_best, np.max(acc))
 
     # save model
 
@@ -102,15 +105,16 @@ if __name__ == '__main__':
     # save thr
 
     with open('thr', 'w') as f:
-        f.write(str(thr))
+        f.write(str(thr_best))
 
     # test if there inference data
 
     if args.infdata is not None:
         Xi, labels = read_data(args.infdata)
-        predictions = model.predict(Xi).flatten()
-        binary_predictions = np.zeros_like(predictions)
-        binary_predictions[np.where(predictions > 0.5)[0]] = 1
+        R = model.predict(X)
+        probs = np.linalg.norm(R - X, axis=-1)
+        binary_predictions = np.zeros_like(probs)
+        binary_predictions[np.where(probs > thr_best)[0]] = 1
         idx_tp = np.where((labels == 1) & (binary_predictions == 1))[0]  # true positives
         idx_tn = np.where((labels == 0) & (binary_predictions == 0))[0]  # true negatives
         idx_fp = np.where((labels == 0) & (binary_predictions == 1))[0]  # false positives
