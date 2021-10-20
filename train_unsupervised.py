@@ -80,7 +80,6 @@ if __name__ == '__main__':
     n0 = len(p0s)
     n1 = len(p1s)
     if p1s[0] > p0s[-1]:
-        print('here')
         acc = [1]
         thr = [(p1s[0] + p0s[-1]) / 2]
     else:
@@ -96,7 +95,6 @@ if __name__ == '__main__':
             acc[i + 1] = (h - n10 + n1) / n
     argmax = np.argmax(acc)
     thr_best = thr[argmax]
-    print(thr_best, np.max(acc))
 
     # save model
 
@@ -111,8 +109,8 @@ if __name__ == '__main__':
 
     if args.infdata is not None:
         Xi, labels = read_data(args.infdata)
-        R = model.predict(X)
-        probs = np.linalg.norm(R - X, axis=-1)
+        R = model.predict(Xi)
+        probs = np.linalg.norm(R - Xi, axis=-1)
         binary_predictions = np.zeros_like(probs)
         binary_predictions[np.where(probs > thr_best)[0]] = 1
         idx_tp = np.where((labels == 1) & (binary_predictions == 1))[0]  # true positives

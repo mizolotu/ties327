@@ -23,4 +23,4 @@ learning_rate = 1e-4  # float
 batch_size = 64  # integer
 
 epochs = 1000
-patience = 250
+patience = 100
