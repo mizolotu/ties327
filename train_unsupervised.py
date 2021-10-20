@@ -109,6 +109,7 @@ if __name__ == '__main__':
 
     if args.infdata is not None:
         Xi, labels = read_data(args.infdata)
+        Xi = (Xi - xmin[None, :]) / (xmax[None, :] - xmin[None, :] + 1e-10)
         R = model.predict(Xi)
         probs = np.linalg.norm(R - Xi, axis=-1)
         binary_predictions = np.zeros_like(probs)
